@@ -1,0 +1,87 @@
+% $Id: spi_slave.tdf,v 1.1.1.1 2004/05/04 15:44:03 bob Exp $ 
+ 
+  File:		spi_slave.tdf
+  Module:
+  Project:	uThreads (MicroThreads)
+  Author:	Robinson Mittmann (bob@methafora.com.br)
+  Target:	Altera flex10k
+  Comment:
+  Copyright(c) 2003 Embedded Systems Technologies (EST). All Rights Reserved.
+%
+
+SUBDESIGN spi_slave(
+	CLK : INPUT  = VCC;
+
+--	CKPH : INPUT = GND;	-- Clock Phase
+	CKPL : INPUT = VCC;	-- Clock Polarity
+
+	MISO : BIDIR;		-- SPI Slave Output
+	MOSI : INPUT = VCC;	-- SPI Slave Input
+	SCK : INPUT = VCC;	-- SPI Clock
+	STE : INPUT = GND;
+
+	D[7..0] : INPUT = VCC;
+	CLRF : INPUT = GND;	-- Clear SPIF
+
+	Q[7..0] : OUTPUT;
+	SPIF : OUTPUT;		-- SPI Transfer Flag
+) 
+
+VARIABLE
+	shift_ff[7..0] : DFF;
+	rxbuf_ff[7..0] : DFF;
+
+	sync_ff : DFF;
+	clrn_ff : DFF;
+
+	spi_ff : DFF;
+
+	cnt_ff[2..0] : DFF;
+	cnt_cy[2..0] : NODE;
+	cnt_z[2..0] : NODE;
+	zero: NODE;
+	store: NODE;
+	sclock: NODE;
+	sync: NODE;
+BEGIN
+-- Clock control
+	sclock = !(CKPL $ SCK);
+	sync_ff.clk = sclock;
+	sync_ff.d = VCC;
+	clrn_ff.clk = CLK;
+	clrn_ff.d = sync_ff.q;
+	sync_ff.clrn = !clrn_ff.q;
+	sync = sync_ff.q;
+
+-- Timing control
+	cnt_ff[].clk = clk;
+	cnt_ff[0].d = !STE & ((sync & !cnt_ff[0].q) # (!sync & cnt_ff[0].q));
+	cnt_cy[0] = STE $ cnt_ff[0].q;
+	cnt_z[0] = !cnt_ff[0].q;
+	FOR i IN 1 TO 2 GENERATE
+		cnt_ff[i].d = !STE & ((sync & (cnt_ff[i].q $ cnt_cy[i -1])) # (!sync & cnt_ff[i].q));
+		cnt_cy[i] = cnt_ff[i].q & cnt_cy[i - 1];
+		cnt_z[i] = cnt_z[i - 1] & !cnt_ff[i].q;
+	END GENERATE;
+	store = sync & cnt_cy[2];
+	zero = cnt_z[2];
+
+-- Shift register
+	shift_ff[].clk = sclock;
+	shift_ff[0].d = MOSI;
+	FOR i IN 1 TO 7 GENERATE
+		shift_ff[i].d = (zero & D[i - 1]) # (!zero & shift_ff[i - 1].q);
+	END GENERATE;
+	MISO = TRI((zero & D[7]) # (!zero & shift_ff[7].q), !STE);
+
+-- Input Buffer
+	rxbuf_ff[].clk = CLK;
+	rxbuf_ff[].d = (store & shift_ff[].q) # (!store & rxbuf_ff[].q);
+	Q[] = rxbuf_ff[];
+
+-- Transfer Complete Flag
+	spi_ff.clk = CLK;
+	spi_ff.d = !CLRF & (store # spi_ff.q);
+	SPIF = spi_ff.q;
+END;
+

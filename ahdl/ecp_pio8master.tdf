@@ -1,0 +1,130 @@
+% $Id: ecp_pio8master.tdf,v 1.1.1.1 2004/05/04 15:44:03 bob Exp $ 
+ 
+  File:		ecp_pio8master.tdf
+  Module:
+  Project:
+  Author:	Robinson Mittmann (bob@methafora.com.br)
+  Target:	max3000
+  Comment:	ECP port to 8bit Master Parallel IO bridge
+  Copyright(c) 2003 Embedded Systems Technologies (EST). All Rights Reserved.
+%
+
+SUBDESIGN ecp_pio8master(
+	CLK : INPUT  = VCC;
+
+	HOST_CLK : INPUT = VCC;		-- Host Clock
+	HOST_ACK : INPUT = VCC;		-- Host Acknowledgement
+	PERIPH_CLK : OUTPUT;		-- Preipheral Clock
+	PERIPH_ACK : OUTPUT;		-- Peripheral Acknowledgement
+	NREV_REQ : INPUT = VCC;		-- Reverse Request
+	NREV_ACK : OUTPUT;		-- Reverse Request Acknowledgement
+	NPERIPH_REQ : OUTPUT;		-- Peripheral Request
+	LPD[7..0]: INPUT;		-- Parallel Port Data
+
+	WS[3..0]: INPUT;		-- Number of wait states
+	GUARD[3..0]: INPUT;		-- Guard Time
+	ADDR[6..0]: OUTPUT;		-- 
+
+	IRQ : INPUT = GND;
+	NRD : OUTPUT;
+	NWR : OUTPUT;
+
+	REV : OUTPUT;
+) 
+
+VARIABLE
+	rev_cycle : NODE;	-- Reverse Cycle
+	rev_en : NODE;
+	
+	wr_ff : DFF;	
+	rd_ff : DFF;
+	ack_ff : DFF;
+
+	guard_ff[3..0] : DFF;
+	guard_cy[3..0] : NODE;
+	guard_en : NODE;
+	guard_done : NODE;
+
+	addr_ff[6..0] : DFF;
+	addr_en : NODE;
+
+	ws_ff[3..0] : DFF;
+	ws_en: NODE;
+	ws_cy[3..0] : NODE;
+	ws_done : NODE;
+BEGIN
+-- Reverse Cycle Request
+	ack_ff.clk = CLK;
+	ack_ff.d = HOST_ACK # (ack_ff.q & IRQ & !NREV_REQ & !guard_done);
+	NPERIPH_REQ = !(IRQ # rev_cycle);
+	rev_en = IRQ & !NREV_REQ & !ack_ff.q;
+	NREV_ACK = !((IRQ  # rev_cycle) & !NREV_REQ);
+
+-- Forward Cycle Timing
+	wr_ff.clk = CLK;
+	wr_ff.d = !HOST_CLK & (wr_ff.q # ws_done);
+	PERIPH_ACK = (!NREV_ACK) # wr_ff.q;
+	NWR = !(!HOST_CLK & HOST_ACK);
+
+-- Address Latch
+	addr_en = wr_ff.q & !HOST_ACK & PERIPH_ACK;
+	addr_ff[].clk = CLK;
+	FOR i IN 0 TO 6 GENERATE
+		addr_ff[i].d = (addr_en & LPD[i]) # (!addr_en & addr_ff[i].q);
+	END GENERATE;
+	ADDR[] = addr_ff[].q;
+
+-- Reverse Cycle Timing
+	rd_ff.clk = CLK;
+	rd_ff.d = rev_en # (rd_ff.q & !NREV_REQ & HOST_ACK & !ws_done);
+	rev_cycle = rd_ff.q;
+	PERIPH_CLK = !rd_ff.q;
+	NRD = !(HOST_ACK & !NREV_ACK);
+
+%	nrd_ff[0].d = (!rd_ff.q & nrd_ff[0].q) # nrd_done;
+	nrd_ff[1].d = nrd_ff[1].q $ !(nrd_ff[0].q # rd_ff.q);
+	nrd_cy[1] = nrd_ff[1].q & !(nrd_ff[0].q # rd_ff.q);
+	nrd_ff[2].d = nrd_ff[2].q $ nrd_cy[1];
+	nrd_cy[2] = nrd_ff[2].q & nrd_cy[1];
+	nrd_ff[3].d = nrd_ff[3].q $ nrd_cy[2];
+	nrd_cy[3] = nrd_ff[3].q & nrd_cy[2];
+	nrd_done = nrd_cy[3]; %
+
+
+-- Wait states counter
+	ws_en = (!HOST_CLK # (rev_cycle & HOST_ACK));
+	ws_ff[].clk = CLK;
+	ws_ff[0].d = (ws_en & !ws_ff[0].q) # (!ws_en & WS[0]);
+	ws_cy[0] = !ws_ff[0].q;
+	FOR i IN 1 TO 3 GENERATE
+		ws_ff[i].d = (ws_en & (ws_ff[i].q $ ws_cy[i -1])) # (!ws_en & WS[i]);
+		ws_cy[i] = !ws_ff[i].q & ws_cy[i - 1];
+	END GENERATE;
+	ws_done = ws_cy[3];
+
+-- Guard counter
+	guard_en = (!HOST_ACK & ack_ff.q);
+	guard_ff[].clk = CLK;
+	guard_ff[0].d = (guard_en & !guard_ff[0].q) # (!guard_en & GUARD[0]);
+	guard_cy[0] = !guard_ff[0].q;
+	FOR i IN 1 TO 3 GENERATE
+		guard_ff[i].d = (guard_en & (guard_ff[i].q $ guard_cy[i -1])) # (!guard_en & GUARD[i]);
+		guard_cy[i] = !guard_ff[i].q & guard_cy[i - 1];
+	END GENERATE;
+	guard_done = guard_cy[3];
+
+-- Data Direction Control
+--	FOR i IN 0 TO 7 GENERATE
+--		LPD[i] = TRI(PIO[i], !(!NREV_REQ # rev_cycle));
+--	END GENERATE;
+
+--	FOR i IN 0 TO 7 GENERATE
+--		PIO[i] = TRI(LPD[i], !(NREV_REQ & !rev_cycle & HOST_ACK));
+--	END GENERATE;
+
+-- Debug
+
+	REV = rev_en;
+
+END;
+

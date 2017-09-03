@@ -1,0 +1,26 @@
+% $Id: l2h.tdf,v 1.1.1.1 2004/05/04 15:44:03 bob Exp $ 
+ 
+  File:		l2h.tdf
+  Module:
+  Project:	
+  Author:	Robinson Mittmann (bob@methafora.com.br)
+  Target:	Altera flex10k
+  Comment:	Low to High transition detector
+  Copyright(c) 2003 Embedded Systems Technologies (EST). All Rights Reserved.
+%
+
+SUBDESIGN l2h(
+	CLK : INPUT = VCC;
+	D : INPUT = VCC;
+	Y : OUTPUT;
+)
+
+VARIABLE
+	ff : DFF;
+BEGIN
+	ff.clk = CLK;
+	ff.d = D;
+
+	Y = (D $ ff.q) & D;
+END;
+
