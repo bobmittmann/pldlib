@@ -1,0 +1,66 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 1991-2004 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 64 64 96 128)
+	(text "mux2x1" (rect 0 48 38 60)(font "Arial" ))
+	(text "inst" (rect 0 0 17 12)(font "Arial" ))
+	(port
+		(pt 16 64)
+		(input)
+		(text "S" (rect 24 14 38 22)(font "Arial" (font_size 8))(vertical))
+		(text "S" (rect 9 52 23 60)(font "Arial" (font_size 8))(vertical)(invisible))
+		(line (pt 16 64)(pt 16 48))
+	)
+	(port
+		(pt 0 40)
+		(input)
+		(text "B" (rect 24 48 32 62)(font "Arial" (font_size 8)))
+		(text "1" (rect 11 34 16 46)(font "Arial" ))
+		(line (pt 0 40)(pt 8 40))
+	)
+	(port
+		(pt 0 24)
+		(input)
+		(text "A" (rect 24 88 33 102)(font "Arial" (font_size 8)))
+		(text "0" (rect 11 19 16 31)(font "Arial" ))
+		(line (pt 0 24)(pt 8 24))
+	)
+	(port
+		(pt 32 32)
+		(output)
+		(text "Y" (rect -18 32 -9 46)(font "Arial" (font_size 8)))
+		(text "Y" (rect 19 10 28 24)(font "Arial" (font_size 8))(invisible))
+		(line (pt 32 32)(pt 24 32))
+	)
+	(drawing
+		(line (pt 8 52)(pt 24 44)(line_width 1))
+		(line (pt 24 21)(pt 8 13)(line_width 1))
+		(line (pt 8 52)(pt 8 13)(line_width 1))
+		(line (pt 24 44)(pt 24 21)(line_width 1))
+	)
+)

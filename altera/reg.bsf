@@ -1,0 +1,79 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 1991-2009 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 64 64 192 224)
+	(text "reg" (rect 1 0 16 12)(font "Arial" ))
+	(text "inst" (rect 4 144 21 156)(font "Arial" ))
+	(port
+		(pt 0 56)
+		(input)
+		(text "clk" (rect 0 0 14 12)(font "Arial" ))
+		(text "clk" (rect 28 51 42 63)(font "Arial" ))
+		(line (pt 0 56)(pt 16 56)(line_width 1))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "en" (rect 0 0 11 12)(font "Arial" ))
+		(text "en" (rect 21 75 32 87)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 1))
+	)
+	(port
+		(pt 0 128)
+		(input)
+		(text "clr" (rect 0 0 11 12)(font "Arial" ))
+		(text "clr" (rect 21 123 32 135)(font "Arial" ))
+		(line (pt 0 128)(pt 16 128)(line_width 1))
+	)
+	(port
+		(pt 0 32)
+		(input)
+		(text "d[N-1..0]" (rect 0 0 43 12)(font "Arial" ))
+		(text "d[N-1..0]" (rect 21 27 64 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 3))
+	)
+	(port
+		(pt 0 104)
+		(input)
+		(text "ld" (rect 24 96 33 110)(font "Arial" (font_size 8)))
+		(text "ld" (rect 22 99 30 111)(font "Arial" ))
+		(line (pt 0 104)(pt 16 104)(line_width 1))
+	)
+	(port
+		(pt 128 32)
+		(output)
+		(text "q[N-1..0]" (rect -16 0 27 12)(font "Arial" ))
+		(text "q[N-1..0]" (rect 71 27 114 39)(font "Arial" ))
+		(line (pt 128 32)(pt 112 32)(line_width 3))
+	)
+	(parameter
+		"N"
+		"8"
+		""
+		(type "PARAMETER_UNSIGNED_DEC")	)
+	(drawing
+		(line (pt 16 48)(pt 24 56)(line_width 1))
+		(line (pt 24 56)(pt 16 64)(line_width 1))
+		(rectangle (rect 16 16 113 144)(line_width 1))
+	)
+	(annotation_block (parameter)(rect 200 32 384 64))
+)
